@@ -56,7 +56,7 @@ export function LoginForm() {
                   type="email"
                   placeholder="your-email@example.com"
                   {...field}
-                  className="bg-primary text-background"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -75,7 +75,7 @@ export function LoginForm() {
                   type="password"
                   placeholder="********"
                   {...field}
-                  className="bg-primary text-background"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
