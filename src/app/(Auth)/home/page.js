@@ -1,3 +1,5 @@
 export default function Home() {
-  return <div className="text-center">Home</div>;
+  return (
+    <h1 className="text-6xl font-bold text-center">Welcome to the Home Page</h1>
+  );
 }

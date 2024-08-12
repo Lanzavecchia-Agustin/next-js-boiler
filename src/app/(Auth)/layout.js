@@ -1,4 +1,5 @@
 import AuthHeader from './components/AuthHeader';
+import Sidebar from './components/Sidebar';
 
 export default function AuthLayout({ children }) {
   return (
@@ -7,7 +8,11 @@ export default function AuthLayout({ children }) {
         <AuthHeader />
       </div>
       <div className="flex flex-grow md:flex-row">
-        <div className="flex items-center justify-center w-full h-full bg-foreground">
+        {/* Sidebar */}
+        <Sidebar />
+
+        {/* Main Content Area */}
+        <div className="flex items-center justify-center flex-grow h-full bg-foreground">
           <main className="text-background">{children}</main>
         </div>
       </div>
