@@ -62,7 +62,7 @@ export function SignupForm() {
                 <Input
                   placeholder="Your name"
                   {...field}
-                  className="text-background bg-primary"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -81,7 +81,7 @@ export function SignupForm() {
                   type="email"
                   placeholder="your-email@example.com"
                   {...field}
-                  className="text-background bg-primary"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -100,7 +100,7 @@ export function SignupForm() {
                   type="password"
                   placeholder="********"
                   {...field}
-                  className="text-background bg-primary"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -119,7 +119,7 @@ export function SignupForm() {
                   type="password"
                   placeholder="********"
                   {...field}
-                  className="text-background bg-primary"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -127,7 +127,11 @@ export function SignupForm() {
           )}
         />
 
-        <Button type="submit" variant="outline" className="w-full text-primary">
+        <Button
+          type="submit"
+          variant="outline"
+          className="w-full bg-primary text-primary-foreground"
+        >
           Sign Up
         </Button>
 

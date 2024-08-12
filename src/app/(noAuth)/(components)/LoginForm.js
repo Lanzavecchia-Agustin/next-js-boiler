@@ -52,7 +52,7 @@ export function LoginForm() {
                   type="email"
                   placeholder="your-email@example.com"
                   {...field}
-                  className="bg-primary text-background"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -71,7 +71,7 @@ export function LoginForm() {
                   type="password"
                   placeholder="********"
                   {...field}
-                  className="bg-primary text-background"
+                  className="text-primary"
                 />
               </FormControl>
               <FormMessage />
@@ -88,7 +88,11 @@ export function LoginForm() {
           </Link>
         </div>
 
-        <Button type="submit" variant="outline" className="w-full text-primary">
+        <Button
+          type="submit"
+          variant="outline"
+          className="w-full bg-primary text-primary-foreground"
+        >
           Login
         </Button>
 
