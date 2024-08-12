@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useLoginMutation } from '../(hooks)/useLoginMutation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
+// Define the validation schema using Zod
 const formSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
@@ -31,15 +33,17 @@ export function LoginForm() {
     mode: 'onChange',
   });
 
+  const { mutate: login, isLoading, error } = useLoginMutation(); // Use the useLogin hook
+
   const onSubmit = (data) => {
-    console.log('Form Data: ', data);
+    login(data); // Trigger the login mutation with form data
   };
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-11/12 p-12 space-y-4 "
+        className="w-11/12 p-12 space-y-4"
       >
         <FormField
           control={form.control}
@@ -79,6 +83,13 @@ export function LoginForm() {
           )}
         />
 
+        {/* Display an error message if login fails */}
+        {error && (
+          <p className="text-sm text-red-500">
+            {error.response?.data?.message || 'Login failed. Please try again.'}
+          </p>
+        )}
+
         <div>
           <Link
             href="/forgot-password"
@@ -88,8 +99,13 @@ export function LoginForm() {
           </Link>
         </div>
 
-        <Button type="submit" variant="outline" className="w-full text-primary">
-          Login
+        <Button
+          type="submit"
+          variant="outline"
+          className="w-full text-primary"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Logging in...' : 'Login'}
         </Button>
 
         <p className="text-sm text-muted-foreground">

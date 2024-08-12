@@ -1,10 +1,10 @@
-import AuthHeader from './(components)/AuthHeader';
+import NoAuthHeader from './(components)/NoAuthHeader';
 
 export default function AuthLayout({ children }) {
   return (
     <div className="flex flex-col h-screen">
       <div className="w-full p-4 text-primary-foreground">
-        <AuthHeader />
+        <NoAuthHeader />
       </div>
       <div className="flex flex-col flex-grow md:flex-row">
         <div className="flex items-center justify-center w-full h-4/6 md:w-1/2 bg-background">
