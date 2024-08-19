@@ -1,178 +1,119 @@
 'use client';
 
+import React from 'react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useUserData } from '@/app/(Auth)/hooks/useUserData';
+import { useUpdateUserInformation } from '@/app/(Auth)/hooks/useUpdateUserInformation';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
+const updateUserSchema = z.object({
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters.',
+  }),
+  email: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+});
 
-import { useSignupMutation } from '../(hooks)/useSignupMutation'; // Import the useSignupMutation hook
+export default function SettingsForm() {
+  const { data: userInfo } = useUserData();
+  const {
+    mutate: updateUser,
+    isLoading,
+    isError,
+    isSuccess,
+  } = useUpdateUserInformation();
 
-// Define the form validation schema using Zod
-const formSchema = z
-  .object({
-    name: z.string().min(2, {
-      message: 'Name must be at least 2 characters.',
-    }),
-    email: z.string().email({
-      message: 'Please enter a valid email address.',
-    }),
-    password: z.string().min(6, {
-      message: 'Password must be at least 6 characters.',
-    }),
-    confirmPassword: z.string().min(6, {
-      message: 'Confirm Password must be at least 6 characters.',
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match.',
-    path: ['confirmPassword'],
-  });
-
-export function SignupForm() {
-  // Initialize the form with react-hook-form and Zod schema validation
   const form = useForm({
-    resolver: zodResolver(formSchema),
-    mode: 'onChange',
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      name: userInfo?.name || '',
+      email: userInfo?.email || '',
+    },
   });
 
-  // Destructure the mutate function and other state variables from useSignupMutation hook
-  const { mutate: signup, isLoading, error } = useSignupMutation();
-
-  // Handle form submission
   const onSubmit = (data) => {
-    // Call signup function with form data
-    signup({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      role: 'Admin', // Adjust the role as needed for your application logic (Admin, User)
-    });
+    updateUser(data);
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-11/12 p-12 space-y-4 text-background"
-      >
-        {/* Name field */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Your name"
-                  {...field}
-                  className="text-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Email field */}
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  placeholder="your-email@example.com"
-                  {...field}
-                  className="text-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Password field */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="********"
-                  {...field}
-                  className="text-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Confirm Password field */}
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="********"
-                  {...field}
-                  className="text-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Display error message if registration fails */}
-        {error && (
-          <p className="text-sm text-red-500">
-            {error.response?.data?.message ||
-              'Registration failed. Please try again.'}
-          </p>
-        )}
-
-        {/* Submit button with loading state */}
-        <Button
-          type="submit"
-          variant="outline"
-          className="w-full text-primary"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Registering...' : 'Sign Up'}
-        </Button>
-
-        {/* Link to the login page for existing users */}
-        <p className="text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link href="/login">
-            <Button variant="link" className="text-background">
-              Login
+    <Card className="w-full max-w-3xl">
+      <CardHeader>
+        <CardTitle>Account Settings</CardTitle>
+        <CardDescription>Update your personal information.</CardDescription>
+      </CardHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent className="grid gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your name"
+                        {...field}
+                        className="text-primary"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        {...field}
+                        className="text-primary"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Separator />
+          </CardContent>
+          <CardFooter className="flex justify-end gap-2">
+            <Button variant="destructive">Cancel</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Saving...' : 'Save Changes'}
             </Button>
-          </Link>
-        </p>
-      </form>
-    </Form>
+            {isError && <p>Error updating profile</p>}
+            {isSuccess && <p>Profile updated successfully!</p>}
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 }

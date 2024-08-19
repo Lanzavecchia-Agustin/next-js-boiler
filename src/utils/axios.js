@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 // Create an instance of Axios with base configuration
 const axiosInstance = axios.create({
@@ -13,7 +13,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // Retrieve token from localStorage
-    const token = localStorage.getItem('token');
+    const token = Cookies.get('token');
     if (token) {
       // Attach the token to the Authorization header if it exists
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -33,14 +33,12 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
-    const router = useRouter(); // Get the Next.js router instance
-
     // Check if the response status is 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
       // If so, remove the token from localStorage
       localStorage.removeItem('token');
       // Redirect the user to the login page
-      router.push('/login');
+      window.location.href = '/login';
     }
     // Reject the promise with the error object
     return Promise.reject(error);

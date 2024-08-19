@@ -16,15 +16,14 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import ErrorMessage from '@/components/ui/errorMessage';
 
 // Define the validation schema using Zod
 const formSchema = z.object({
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  password: z.string().min(6, {
-    message: 'Password must be at least 6 characters.',
-  }),
+  password: z.string(),
 });
 
 export function LoginForm() {
@@ -33,10 +32,10 @@ export function LoginForm() {
     mode: 'onChange',
   });
 
-  const { mutate: login, isLoading, error } = useLoginMutation(); // Use the useLogin hook
+  const { mutate: login, error, isLoading } = useLoginMutation();
 
   const onSubmit = (data) => {
-    login(data); // Trigger the login mutation with form data
+    login(data);
   };
 
   return (
@@ -84,11 +83,7 @@ export function LoginForm() {
         />
 
         {/* Display an error message if login fails */}
-        {error && (
-          <p className="text-sm text-red-500">
-            {error.response?.data?.message || 'Login failed. Please try again.'}
-          </p>
-        )}
+        {error && <ErrorMessage error={error} />}
 
         <div>
           <Link
