@@ -6,7 +6,7 @@ import ChatLayout from './ChatLayout';
 import { useChat } from '../../(contexts)/ChatContext';
 import { useState } from 'react';
 
-export default function Messenger({ conversation, onClose }) {
+export default function Chat({ conversation, onClose }) {
   const { userId, sendMessage, isExpanded } = useChat();
   const [messageContent, setMessageContent] = useState('');
 
@@ -17,16 +17,20 @@ export default function Messenger({ conversation, onClose }) {
     }
   };
 
+  // Providing default values if data is missing
+  const name = conversation.name || 'Unknown User';
+  const avatarFallback = name.charAt(0).toUpperCase();
+
   return (
     <ChatLayout isExpanded={isExpanded}>
       <header className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground">
         <div className="flex items-center gap-4 ">
           <Avatar className="w-8 h-8 bg-white text-primary sm:h-10 sm:w-10">
-            <AvatarImage alt={conversation.name} />
-            <AvatarFallback>{conversation.name.charAt(0)}</AvatarFallback>
+            <AvatarImage alt={name} />
+            <AvatarFallback>{avatarFallback}</AvatarFallback>
           </Avatar>
           <div>
-            <div className="font-medium ">{conversation.name}</div>
+            <div className="font-medium">{name}</div>
             <div className="text-sm text-muted-foreground">Online</div>
           </div>
         </div>
@@ -40,35 +44,41 @@ export default function Messenger({ conversation, onClose }) {
           <span className="sr-only">Close chat</span>
         </Button>
       </header>
-      <div className="flex-1 p-3 overflow-auto ">
+      <div className="flex-1 p-3 overflow-auto">
         <div className="grid gap-2">
-          {conversation.messages.map((msg, index) => {
-            const isLastInGroup =
-              index === conversation.messages.length - 1 ||
-              conversation.messages[index + 1].senderId !== msg.senderId;
+          {conversation.messages.length > 0 ? (
+            conversation.messages.map((msg, index) => {
+              const isLastInGroup =
+                index === conversation.messages.length - 1 ||
+                conversation.messages[index + 1].senderId !== msg.senderId;
 
-            return (
-              <div
-                key={msg.messageId}
-                className={`flex gap-2 -mt-2 ${
-                  msg.senderId === userId && 'flex-row-reverse '
-                } ${isLastInGroup ? 'mb-4' : 'mb-1'} items-end `}
-              >
+              return (
                 <div
-                  className={`grid gap-1 p-3 text-sm rounded-md max-w-xs ${
-                    msg.senderId === userId
-                      ? 'bg-primary text-primary-foreground text-right'
-                      : 'bg-muted text-left'
-                  }`}
+                  key={msg.messageId}
+                  className={`flex gap-2 -mt-2 ${
+                    msg.senderId === userId && 'flex-row-reverse '
+                  } ${isLastInGroup ? 'mb-4' : 'mb-1'} items-end`}
                 >
-                  <p>{msg.content}</p>
-                  <div className="text-xs text-muted-foreground">
-                    {msg.timestamp}
+                  <div
+                    className={`grid gap-1 p-3 text-sm rounded-md max-w-xs ${
+                      msg.senderId === userId
+                        ? 'bg-primary text-primary-foreground text-right'
+                        : 'bg-muted text-left'
+                    }`}
+                  >
+                    <p>{msg.content}</p>
+                    <div className="text-xs text-muted-foreground">
+                      {msg.timestamp}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className="text-center text-muted-foreground">
+              No messages yet. Start the conversation!
+            </div>
+          )}
         </div>
       </div>
       <div className="relative">

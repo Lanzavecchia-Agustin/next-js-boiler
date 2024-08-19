@@ -51,8 +51,8 @@ export default function MessagesList() {
           />
           <ScrollArea className="h-[480px] p-2  text-background">
             <div className="grid gap-4">
-              {filteredConversations.length > 0 ? (
-                filteredConversations.map((conv) => (
+              {filteredConversations?.length > 0 ? (
+                filteredConversations?.map((conv) => (
                   <div
                     key={conv.conversationId}
                     className={`flex items-center gap-4 cursor-pointer p-2 ${
@@ -91,7 +91,7 @@ export default function MessagesList() {
               )}
             </div>
           </ScrollArea>
-          {filteredConversations.length === 0 && searchQuery && (
+          {!filteredConversations?.length && searchQuery && (
             <div className="flex justify-center p-4">
               <Button onClick={handleStartNewChat}>
                 Start a New Chat with "{searchQuery}"

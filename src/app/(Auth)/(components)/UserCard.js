@@ -13,7 +13,12 @@ export default function UserCard({ user, startChat }) {
         <h3 className="text-2xl font-semibold">{user.name}</h3>
         <p className="text-muted-foreground">{user.email}</p>
       </div>
-      <Button className="w-full" onClick={startChat}>
+      <Button
+        className="w-full"
+        onClick={() => {
+          startChat(user);
+        }}
+      >
         <MessageCircleIcon className="w-4 h-4 mr-2" />
         Start Chat
       </Button>

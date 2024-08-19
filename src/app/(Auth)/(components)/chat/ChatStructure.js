@@ -1,6 +1,6 @@
 import MessagesList from './MessagesList';
-import Messenger from './Chat';
 import { useChat } from '../../(contexts)/ChatContext';
+import Chat from './Chat';
 
 export default function ChatStructure() {
   const {
@@ -14,7 +14,7 @@ export default function ChatStructure() {
     <div className="relative">
       <div className="fixed z-50 flex items-end justify-end">
         {isMessengerOpen && (
-          <Messenger
+          <Chat
             isExpanded={isExpanded}
             conversation={selectedConversation}
             onClose={handleCloseMessenger}
