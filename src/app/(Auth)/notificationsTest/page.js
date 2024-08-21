@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 export default function page() {
   useEffect(() => {
     const token = Cookies.get('token'); //
-    const socket = io('http://localhost:3001/notifications', {
+    const socket = io('http://localhost:3001/chat', {
       extraHeaders: {
         Authorization: `Bearer ${token}`,
       },

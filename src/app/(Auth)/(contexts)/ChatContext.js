@@ -1,96 +1,82 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+'use client';
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import io from 'socket.io-client';
 import Cookies from 'js-cookie';
-import { useWebSocket } from './WebSocket';
 
 const ChatContext = createContext();
 
-export const useChat = () => {
-  return useContext(ChatContext);
-};
+export const useChat = () => useContext(ChatContext);
 
 export const ChatProvider = ({ children }) => {
-  const {
-    joinRoom,
-    sendMessage: sendSocketMessage,
-    socket,
-    isConnected,
-  } = useWebSocket();
-  const [selectedConversation, setSelectedConversation] = useState(null);
-  const [isMessengerOpen, setIsMessengerOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [conversations, setConversations] = useState([]);
-  const userId = Cookies.get('userId');
+  const [socket, setSocket] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const currentUser = Cookies.get('userId');
 
-  const handleSelectConversation = (conversation) => {
-    setSelectedConversation(conversation);
-    setIsMessengerOpen(true);
+  useEffect(() => {
+    const token = Cookies.get('token');
+    const socketConnection = io('http://localhost:3001/chat', {
+      extraHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    if (window.innerWidth < 640) {
-      setIsExpanded(false);
-    }
+    setSocket(socketConnection);
 
-    if (isConnected && socket) {
-      // Join the room for the selected conversation
-      joinRoom(userId, conversation.recipientId);
+    socketConnection.on('connection-status', (data) => {
+      console.log('Connection status:', data.message);
+    });
 
-      // Listen for the server's response here
-      socket.on('join-room-success', (roomData) => {
-        console.log('Room joined successfully:', roomData);
-        // Update your state with the room's messages or other data if necessary
-      });
-    }
-  };
+    socketConnection.on('new-message', (message) => {
+      console.log('New message received:', message);
+    });
 
-  const handleCloseMessenger = () => {
-    setIsMessengerOpen(false);
-  };
-
-  const sendMessage = (conversationId, content) => {
-    if (!selectedConversation) return;
-
-    const newMessage = {
-      messageId: Date.now().toString(),
-      senderId: userId,
-      recipientId: selectedConversation.recipientId,
-      timestamp: new Date().toLocaleTimeString(),
-      content,
-      status: 'delivered',
-      type: 'text',
+    return () => {
+      socketConnection.disconnect();
     };
+  }, []);
 
-    setConversations((prevConversations) =>
-      prevConversations.map((conv) =>
-        conv.conversationId === conversationId
-          ? {
-              ...conv,
-              messages: [...conv.messages, newMessage],
-            }
-          : conv
-      )
-    );
-
-    // Send the message via WebSocket
-    if (isConnected && socket) {
-      sendSocketMessage(newMessage);
+  const joinRoom = (userBId) => {
+    console.log('Joining room with userBId:', userBId);
+    if (socket) {
+      socket.emit('join-room', { userBId });
     }
   };
 
-  const handleIsExpanded = () => {
-    setIsExpanded(!isExpanded);
+  const leaveRoom = (userId, userBId) => {
+    const roomId = generateRoomId(userId, userBId);
+
+    if (socket && roomId) {
+      socket.emit('leave-room', { roomId, userId });
+    }
+  };
+
+  const sendMessage = (userAId, userBId, message) => {
+    const roomId = generateRoomId(userAId, userBId);
+
+    if (socket && roomId) {
+      socket.emit('send-message', { roomId, message });
+    }
+  };
+
+  const generateRoomId = (userAId, userBId) => {
+    return [userAId, userBId].sort().join('-');
+  };
+
+  const handleSelectConversation = () => {
+    return;
   };
 
   return (
     <ChatContext.Provider
       value={{
-        userId,
-        selectedConversation,
-        isMessengerOpen,
-        isExpanded,
-        conversations,
-        handleIsExpanded,
-        handleCloseMessenger,
-        handleSelectConversation,
+        joinRoom,
+        leaveRoom,
         sendMessage,
+        handleSelectConversation,
+        selectedUser,
+        setSelectedUser,
+        currentUser,
       }}
     >
       {children}
