@@ -13,7 +13,9 @@ export const ChatProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [currentConversation, setCurrentConversation] = useState([]);
+  const [unreadMessages, setUnreadMessages] = useState({});
   const currentUser = Cookies.get('userId');
+  const [currentRoomId, setCurrentRoomId] = useState(null);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -30,10 +32,9 @@ export const ChatProvider = ({ children }) => {
     });
 
     socketConnection.on('join-room-status', (data) => {
-      console.log('Join room status:', data.message);
-      console.log('Data received:', data);
       if (data.statusCode === 200 && data.roomId) {
-        fetchRoomDetails(data.roomId); // Usamos el roomId recibido desde el servidor
+        setCurrentRoomId(data.roomId); // Set current room ID when joining a room
+        fetchRoomDetails(data.roomId);
       }
     });
 
@@ -48,16 +49,14 @@ export const ChatProvider = ({ children }) => {
   }, []);
 
   const fetchRoomDetails = async (roomId) => {
-    console.log('Fetching room details for roomId:', roomId); // Log para verificar que roomId está presente
     try {
       if (!roomId) {
         console.error('Room ID is undefined');
-        return; // Evitar hacer la solicitud si roomId no está definido
+        return;
       }
       const response = await axiosInstance.get(`/chat/room/${roomId}`);
       if (response.data) {
-        console.log('Room details fetched:', response.data); // Log de la respuesta completa del backend
-        setCurrentConversation(response.data.messages); // Asigna los mensajes a la conversación actual
+        setCurrentConversation(response.data.messages);
       }
     } catch (err) {
       console.error('Failed to fetch room details:', err);
@@ -67,8 +66,11 @@ export const ChatProvider = ({ children }) => {
   const joinRoom = (userBId) => {
     if (socket) {
       const roomId = generateRoomId(currentUser, userBId);
-      console.log('Attempting to join room:', roomId); // Log antes de emitir el evento
-      socket.emit('join-room', { userBId }); // Emitimos el evento sin usar roomId aquí
+      console.log('Attempting to join room:', roomId);
+      socket.emit('join-room', { userBId });
+
+      setUnreadMessages((prev) => ({ ...prev, [roomId]: [] }));
+      setCurrentRoomId(roomId); // Asegúrate de actualizar currentRoomId al unirse a un room
     }
   };
 
@@ -77,6 +79,7 @@ export const ChatProvider = ({ children }) => {
 
     if (socket && roomId) {
       socket.emit('leave-room', { roomId, userId });
+      setCurrentRoomId(null); // Restablece el ID del room actual al salir de un room
     }
   };
 
@@ -84,24 +87,43 @@ export const ChatProvider = ({ children }) => {
     const roomId = generateRoomId(userAId, userBId);
 
     if (socket && roomId) {
+      // Emite el mensaje al servidor
       socket.emit('send-message', { roomId, message });
-      // Eliminar la actualización manual del estado aquí
+
+      // Actualiza inmediatamente la conversación actual con el nuevo mensaje
+      const newMessage = {
+        senderId: currentUser,
+        content: message,
+        timestamp: new Date().toISOString(),
+        room: roomId,
+      };
+      updateConversation(newMessage);
     }
   };
 
-  // Función para manejar los nuevos mensajes y normalizarlos
   const handleNewMessage = (message) => {
-    if (message.from && message.message) {
-      // Mensaje recibido a través de WebSocket
-      const normalizedMessage = {
-        senderId: message.from._id,
-        content: message.message,
-        timestamp: new Date().toISOString(),
-      };
+    const normalizedMessage = {
+      senderId: message.senderId || message.from._id,
+      content: message.content || message.message,
+      timestamp: message.timestamp || new Date().toISOString(),
+      room: message.room || generateRoomId(currentUser, message.senderId),
+    };
+
+    // Update currentConversation if the message belongs to the current room
+    if (normalizedMessage.room === currentRoomId) {
       updateConversation(normalizedMessage);
     } else {
-      // Mensaje ya tiene la estructura correcta
-      updateConversation(message);
+      // Add message to unreadMessages if not in the current room
+      if (normalizedMessage.senderId !== currentUser) {
+        setUnreadMessages((prev) => ({
+          ...prev,
+          [normalizedMessage.room]: [
+            ...(prev[normalizedMessage.room] || []),
+            normalizedMessage,
+          ],
+        }));
+        updateConversation(normalizedMessage);
+      }
     }
   };
 
@@ -111,6 +133,10 @@ export const ChatProvider = ({ children }) => {
 
   const generateRoomId = (userAId, userBId) => {
     return [userAId, userBId].sort().join('-');
+  };
+
+  const isInConversation = (userId) => {
+    return selectedUser && selectedUser._id === userId;
   };
 
   return (
@@ -123,6 +149,9 @@ export const ChatProvider = ({ children }) => {
         setSelectedUser,
         currentUser,
         currentConversation,
+        unreadMessages,
+        generateRoomId,
+        isInConversation,
       }}
     >
       {children}

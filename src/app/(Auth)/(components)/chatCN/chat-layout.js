@@ -36,12 +36,6 @@ export function ChatLayout({
 
   const handleUserSelect = (selectedUserFromChats) => {
     setSelectedUser(selectedUserFromChats);
-    const selectedConversation = {
-      conversationId: Date.now().toString(),
-      name: selectedUserFromChats.name,
-      recipientId: selectedUserFromChats._id,
-      messages: selectedUserFromChats.messages || [],
-    };
 
     joinRoom(selectedUserFromChats._id);
   };

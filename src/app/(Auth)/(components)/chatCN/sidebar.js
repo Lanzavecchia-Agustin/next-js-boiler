@@ -9,8 +9,17 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useChat } from '../../(contexts)/ChatContext'; // Importa el hook
 
 export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
+  const {
+    unreadMessages,
+    currentUser,
+    generateRoomId,
+    selectedUser,
+    isInConversation,
+  } = useChat();
+
   return (
     <div
       data-collapsed={isCollapsed}
@@ -47,8 +56,18 @@ export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
         </div>
       )}
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {conversationsList?.map((user, index) =>
-          isCollapsed ? (
+        {conversationsList?.map((user, index) => {
+          const roomId = generateRoomId(user._id, currentUser);
+          const unreadMessagesForRoom = unreadMessages[roomId] || [];
+          const hasUnreadMessages = unreadMessagesForRoom.length > 0;
+          const lastUnreadMessage = hasUnreadMessages
+            ? unreadMessagesForRoom[unreadMessagesForRoom.length - 1].content
+            : '';
+
+          // Check if the user is currently in a conversation with this user
+          const isActiveConversation = isInConversation(user._id);
+
+          return isCollapsed ? (
             <TooltipProvider key={index}>
               <Tooltip key={index} delayDuration={0}>
                 <TooltipTrigger asChild>
@@ -72,6 +91,9 @@ export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
                         {user.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
+                    {!isActiveConversation && hasUnreadMessages && (
+                      <span className="badge">!</span>
+                    )}
                     <span className="sr-only">{user.name}</span>
                   </Link>
                 </TooltipTrigger>
@@ -87,12 +109,15 @@ export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
             <Link
               key={index}
               href="#"
-              onClick={() => onUserSelect(user)} // Llama a onUserSelect al hacer clic
+              onClick={() => onUserSelect(user)}
               className={cn(
                 buttonVariants({ variant: user.variant, size: 'xl' }),
                 user.variant === 'grey' &&
                   'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
-                'justify-start gap-4'
+                'justify-start gap-4',
+                !isActiveConversation && hasUnreadMessages
+                  ? 'bg-muted light:text-black hover:bg-muted hover:text-black dark:hover:text-white'
+                  : ''
               )}
             >
               <Avatar className="flex items-center justify-center">
@@ -107,15 +132,15 @@ export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
               </Avatar>
               <div className="flex flex-col max-w-28">
                 <span>{user.name}</span>
-                {user.messages.length > 0 && (
-                  <span className="text-xs truncate text-zinc-300 ">
-                    {user.messages[user.messages.length - 1].content}
-                  </span>
+                {!isActiveConversation && lastUnreadMessage && (
+                  <p className="text-xs font-bold underline truncate text-muted-foreground">
+                    {`Unread: ${lastUnreadMessage}`}
+                  </p>
                 )}
               </div>
             </Link>
-          )
-        )}
+          );
+        })}
       </nav>
     </div>
   );

@@ -7,8 +7,6 @@ import { MessageSquare } from 'lucide-react';
 export function Chat() {
   const { selectedUser } = useChat();
 
-  console.log('selectedUser', selectedUser);
-
   return (
     <div className="flex flex-col justify-between w-full h-full">
       {selectedUser ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react'; // Importa useEffect
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import ChatBottombar from './chat-bottombar';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -11,9 +11,7 @@ export function ChatList({ isMobile }) {
   const messagesContainerRef = useRef(null);
   const { selectedUser, currentUser, currentConversation } = useChat();
 
-  console.log('currentConversation:', currentConversation);
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;
@@ -61,7 +59,7 @@ export function ChatList({ isMobile }) {
                     {message.avatar ? (
                       <AvatarImage
                         src={message.avatar}
-                        alt={selectedUser.name}
+                        alt={selectedUser?.name} // Asegúrate de que selectedUser no sea null
                         width={6}
                         height={6}
                       />
