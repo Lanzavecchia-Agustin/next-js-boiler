@@ -33,7 +33,7 @@ export const ChatProvider = ({ children }) => {
 
     socketConnection.on('join-room-status', (data) => {
       if (data.statusCode === 200 && data.roomId) {
-        setCurrentRoomId(data.roomId); // Set current room ID when joining a room
+        setCurrentRoomId(data.roomId);
         fetchRoomDetails(data.roomId);
       }
     });
@@ -70,7 +70,7 @@ export const ChatProvider = ({ children }) => {
       socket.emit('join-room', { userBId });
 
       setUnreadMessages((prev) => ({ ...prev, [roomId]: [] }));
-      setCurrentRoomId(roomId); // Asegúrate de actualizar currentRoomId al unirse a un room
+      setCurrentRoomId(roomId);
     }
   };
 
@@ -79,7 +79,7 @@ export const ChatProvider = ({ children }) => {
 
     if (socket && roomId) {
       socket.emit('leave-room', { roomId, userId });
-      setCurrentRoomId(null); // Restablece el ID del room actual al salir de un room
+      setCurrentRoomId(null);
     }
   };
 
@@ -87,15 +87,14 @@ export const ChatProvider = ({ children }) => {
     const roomId = generateRoomId(userAId, userBId);
 
     if (socket && roomId) {
-      // Emite el mensaje al servidor
       socket.emit('send-message', { roomId, message });
 
-      // Actualiza inmediatamente la conversación actual con el nuevo mensaje
       const newMessage = {
         senderId: currentUser,
         content: message,
         timestamp: new Date().toISOString(),
         room: roomId,
+        senderName: selectedUser?.name || 'You',
       };
       updateConversation(newMessage);
     }
@@ -107,13 +106,12 @@ export const ChatProvider = ({ children }) => {
       content: message.content || message.message,
       timestamp: message.timestamp || new Date().toISOString(),
       room: message.room || generateRoomId(currentUser, message.senderId),
+      senderName: message.from?.name || 'Unknown',
     };
 
-    // Update currentConversation if the message belongs to the current room
     if (normalizedMessage.room === currentRoomId) {
       updateConversation(normalizedMessage);
     } else {
-      // Add message to unreadMessages if not in the current room
       if (normalizedMessage.senderId !== currentUser) {
         setUnreadMessages((prev) => ({
           ...prev,
@@ -122,7 +120,6 @@ export const ChatProvider = ({ children }) => {
             normalizedMessage,
           ],
         }));
-        updateConversation(normalizedMessage);
       }
     }
   };
@@ -139,6 +136,14 @@ export const ChatProvider = ({ children }) => {
     return selectedUser && selectedUser._id === userId;
   };
 
+  // Nueva función para limpiar los mensajes no leídos de un room específico
+  const clearUnreadMessages = (roomId) => {
+    setUnreadMessages((prev) => {
+      const { [roomId]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -152,6 +157,7 @@ export const ChatProvider = ({ children }) => {
         unreadMessages,
         generateRoomId,
         isInConversation,
+        clearUnreadMessages, // Exportamos la nueva función
       }}
     >
       {children}

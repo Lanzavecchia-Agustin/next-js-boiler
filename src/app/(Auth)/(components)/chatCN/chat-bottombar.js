@@ -162,9 +162,9 @@ export default function ChatBottombar({ isMobile }) {
             onChange={handleInputChange}
             name="message"
             placeholder="Aa"
-            className="flex items-center w-full overflow-hidden border rounded-full resize-none h-9 bg-background"
+            className="flex items-center w-full overflow-hidden rounded-full resize-none h-9 bg-background"
           />
-          <div className="absolute right-2 bottom-0.5">
+          <div className="absolute right-2 top-8 bottom-0.5">
             <EmojiPicker
               onChange={(value) => {
                 setMessage((prevMessage) => prevMessage + value);

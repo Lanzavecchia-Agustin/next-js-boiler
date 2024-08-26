@@ -35,8 +35,8 @@ export function ChatLayout({
   }, []);
 
   const handleUserSelect = (selectedUserFromChats) => {
+    console.log('handleUserSelect', selectedUserFromChats);
     setSelectedUser(selectedUserFromChats);
-
     joinRoom(selectedUserFromChats._id);
   };
 

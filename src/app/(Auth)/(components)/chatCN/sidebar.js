@@ -12,13 +12,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useChat } from '../../(contexts)/ChatContext'; // Importa el hook
 
 export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
-  const {
-    unreadMessages,
-    currentUser,
-    generateRoomId,
-    selectedUser,
-    isInConversation,
-  } = useChat();
+  const { unreadMessages, currentUser, generateRoomId, isInConversation } =
+    useChat();
 
   return (
     <div
