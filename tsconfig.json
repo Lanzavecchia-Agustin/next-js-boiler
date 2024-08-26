@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./", // Asegúrate de que baseUrl esté establecido
+    "paths": {
+      "@/*": ["src/*"] // Alias para que @ apunte a la carpeta src
+    },
     "lib": [
       "dom",
       "dom.iterable",

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import { useChat } from '../../(contexts)/ChatContext';
+import { AvatarFallback } from '@radix-ui/react-avatar';
 
 export const TopbarIcons = [{ icon: Phone }, { icon: Video }, { icon: Info }];
 
@@ -14,7 +15,7 @@ export default function ChatTopbar() {
   return (
     <div className="flex items-center justify-between w-full h-20 p-4 border-b">
       <div className="flex items-center gap-2">
-        <Avatar className="flex items-center justify-center">
+        {/* <Avatar className="flex items-center justify-center">
           <AvatarImage
             src={selectedUser?.avatar}
             alt={selectedUser?.name}
@@ -22,6 +23,18 @@ export default function ChatTopbar() {
             height={6}
             className="w-10 h-10 "
           />
+        </Avatar> */}
+        <Avatar className="flex items-center justify-center bg-secondary">
+          <AvatarImage
+            src={selectedUser?.avatar}
+            alt={selectedUser?.name}
+            className="w-10 h-10 "
+          />
+          {!selectedUser?.avatar && (
+            <AvatarFallback>
+              {selectedUser?.name.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          )}
         </Avatar>
 
         <div className="flex flex-col">

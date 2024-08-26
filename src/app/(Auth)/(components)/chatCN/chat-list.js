@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import React, { useRef } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -5,16 +7,18 @@ import ChatBottombar from './chat-bottombar';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useChat } from '../../(contexts)/ChatContext';
 
-export function ChatList({ messages = [], isMobile }) {
+export function ChatList({ isMobile }) {
   const messagesContainerRef = useRef(null);
-  const { selectedUser, currentUser } = useChat();
+  const { selectedUser, currentUser, currentConversation } = useChat();
+
+  console.log('currentConversation:', currentConversation);
 
   React.useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [currentConversation]);
 
   const getInitial = (name) => {
     return name ? name.charAt(0).toUpperCase() : '';
@@ -27,9 +31,9 @@ export function ChatList({ messages = [], isMobile }) {
         className="flex flex-col w-full h-full overflow-x-hidden overflow-y-auto"
       >
         <AnimatePresence>
-          {messages?.map((message, index) => (
+          {currentConversation.map((message, index) => (
             <motion.div
-              key={index}
+              key={message._id || index}
               layout
               initial={{ opacity: 0, scale: 1, y: 50, x: 0 }}
               animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
@@ -39,7 +43,7 @@ export function ChatList({ messages = [], isMobile }) {
                 layout: {
                   type: 'spring',
                   bounce: 0.3,
-                  duration: messages.indexOf(message) * 0.05 + 0.2,
+                  duration: index * 0.05 + 0.2,
                 },
               }}
               style={{
@@ -63,28 +67,14 @@ export function ChatList({ messages = [], isMobile }) {
                       />
                     ) : (
                       <AvatarFallback>
-                        {getInitial(selectedUser.name)}
+                        {getInitial(selectedUser?.name || '')}
                       </AvatarFallback>
                     )}
                   </Avatar>
                 )}
                 <span className="max-w-xs p-3 rounded-md bg-accent">
-                  {message.message}
+                  {message.content}
                 </span>
-                {/* {message.senderId === userId && (
-                  <Avatar className="flex items-center justify-center bg-slate-300">
-                    {message.avatar ? (
-                      <AvatarImage
-                        src={message.avatar}
-                        alt="You"
-                        width={6}
-                        height={6}
-                      />
-                    ) : (
-                      <AvatarFallback>{getInitial('You')}</AvatarFallback>
-                    )}
-                  </Avatar>
-                )} */}
               </div>
             </motion.div>
           ))}

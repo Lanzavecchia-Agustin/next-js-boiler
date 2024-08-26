@@ -18,8 +18,7 @@ export function ChatLayout({
   navCollapsedSize,
 }) {
   const { data } = useUsersQuery();
-  const { handleSelectConversation, joinRoom, selectedUser, setSelectedUser } =
-    useChat();
+  const { joinRoom, selectedUser, setSelectedUser } = useChat();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -44,7 +43,6 @@ export function ChatLayout({
       messages: selectedUserFromChats.messages || [],
     };
 
-    handleSelectConversation(selectedConversation);
     joinRoom(selectedUserFromChats._id);
   };
 

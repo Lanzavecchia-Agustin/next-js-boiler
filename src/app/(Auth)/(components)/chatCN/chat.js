@@ -1,44 +1,32 @@
-import React, { useEffect } from 'react';
 import ChatTopbar from './chat-topbar';
 import { ChatList } from './chat-list';
 import { useChat } from '../../(contexts)/ChatContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { MessageSquare } from 'lucide-react';
 
-export function Chat({ isMobile }) {
-  const {
-    selectedConversation,
-    handleSelectConversation,
-    conversations = [],
-    selectedUser,
-  } = useChat();
+export function Chat() {
+  const { selectedUser } = useChat();
 
-  useEffect(() => {
-    if (selectedUser) {
-      let existingConversation = conversations.find(
-        (conv) => conv.recipientId === selectedUser._id
-      );
-
-      if (!existingConversation) {
-        const newConversation = {
-          conversationId: Date.now().toString(),
-          name: selectedUser.name,
-          recipientId: selectedUser._id,
-          messages: [],
-        };
-        handleSelectConversation(newConversation);
-      } else {
-        handleSelectConversation(existingConversation);
-      }
-    }
-  }, [selectedUser, conversations, handleSelectConversation]);
+  console.log('selectedUser', selectedUser);
 
   return (
     <div className="flex flex-col justify-between w-full h-full">
-      <ChatTopbar />
-
-      <ChatList
-        messages={selectedConversation?.messages || []}
-        isMobile={isMobile}
-      />
+      {selectedUser ? (
+        <>
+          <ChatTopbar />
+          <ChatList />
+        </>
+      ) : (
+        <Card className="flex items-center justify-center h-[76vh]">
+          <CardContent className="flex flex-col items-center p-6 text-center">
+            <MessageSquare className="w-12 h-12 mb-4 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-semibold">No chat selected</h3>
+            <p className="text-sm text-muted-foreground">
+              Choose a conversation from the sidebar or start a new chat.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

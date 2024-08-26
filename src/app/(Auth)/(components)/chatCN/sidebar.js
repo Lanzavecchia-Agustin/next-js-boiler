@@ -68,11 +68,9 @@ export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
                         alt={user.name}
                         className="w-10 h-10 "
                       />
-                      {!user.avatar && (
-                        <AvatarFallback>
-                          {user.name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      )}
+                      <AvatarFallback>
+                        {user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <span className="sr-only">{user.name}</span>
                   </Link>
@@ -103,11 +101,9 @@ export function Sidebar({ conversationsList, isCollapsed, onUserSelect }) {
                   alt={user.name}
                   className="w-10 h-10 "
                 />
-                {!user.avatar && (
-                  <AvatarFallback>
-                    {user.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                )}
+                <AvatarFallback>
+                  {user.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex flex-col max-w-28">
                 <span>{user.name}</span>
