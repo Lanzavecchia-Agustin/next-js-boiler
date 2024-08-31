@@ -16,9 +16,6 @@ import {
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
-import { useSignupMutation } from '../(hooks)/useSignupMutation'; // Import the useSignupMutation hook
-
-// Define the form validation schema using Zod
 const formSchema = z
   .object({
     name: z.string().min(2, {
@@ -40,24 +37,13 @@ const formSchema = z
   });
 
 export function SignupForm() {
-  // Initialize the form with react-hook-form and Zod schema validation
   const form = useForm({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
   });
 
-  // Destructure the mutate function and other state variables from useSignupMutation hook
-  const { mutate: signup, isLoading, error } = useSignupMutation();
-
-  // Handle form submission
   const onSubmit = (data) => {
-    // Call signup function with form data
-    signup({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      role: 'Admin', // Adjust the role as needed for your application logic (Admin, User)
-    });
+    console.log('Form Data: ', data);
   };
 
   return (
@@ -66,7 +52,6 @@ export function SignupForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-11/12 p-12 space-y-4 text-background"
       >
-        {/* Name field */}
         <FormField
           control={form.control}
           name="name"
@@ -85,7 +70,6 @@ export function SignupForm() {
           )}
         />
 
-        {/* Email field */}
         <FormField
           control={form.control}
           name="email"
@@ -105,7 +89,6 @@ export function SignupForm() {
           )}
         />
 
-        {/* Password field */}
         <FormField
           control={form.control}
           name="password"
@@ -125,7 +108,6 @@ export function SignupForm() {
           )}
         />
 
-        {/* Confirm Password field */}
         <FormField
           control={form.control}
           name="confirmPassword"
@@ -145,25 +127,14 @@ export function SignupForm() {
           )}
         />
 
-        {/* Display error message if registration fails */}
-        {error && (
-          <p className="text-sm text-red-500">
-            {error.response?.data?.message ||
-              'Registration failed. Please try again.'}
-          </p>
-        )}
-
-        {/* Submit button with loading state */}
         <Button
           type="submit"
           variant="outline"
-          className="w-full text-primary"
-          disabled={isLoading}
+          className="w-full bg-primary text-primary-foreground"
         >
-          {isLoading ? 'Registering...' : 'Sign Up'}
+          Sign Up
         </Button>
 
-        {/* Link to the login page for existing users */}
         <p className="text-sm text-muted-foreground">
           Already have an account?{' '}
           <Link href="/login">

@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '@/utils/axios';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { useState } from 'react';
 
 // Function to handle the user login process
 const loginUser = async ({ email, password }) => {
@@ -10,28 +11,32 @@ const loginUser = async ({ email, password }) => {
     password,
   });
 
-  const { token } = response.data;
+  const { token, user } = response.data;
 
-  // Store the token in both localStorage and a cookie
-  localStorage.setItem('token', token); // Store the token in localStorage
-  Cookies.set('token', token); // Store the token in a cookie
+  // Store the token and user ID in cookies
+  Cookies.set('token', token);
+  Cookies.set('userId', user._id);
 
-  return response.data;
+  // Return the full user data
+  return user;
 };
 
-// Custom hook to manage the login process using React Query
+// Custom hook to manage the login process
 export const useLoginMutation = () => {
   const router = useRouter(); // Get the router instance to handle navigation
+  const [error, setError] = useState(null);
 
   const mutation = useMutation({
-    mutationFn: loginUser, // Set the mutation function to loginUser
-    onSuccess: () => {
-      router.push('/home'); // Redirect to /home on successful login
+    mutationFn: loginUser,
+    onSuccess: (user) => {
+      // Redirect to /home on successful login
+      router.push('/home');
     },
     onError: (error) => {
-      console.error('Login failed:', error);
+      // Handle error (you can use the returned error from useMutation instead of setting it in state)
+      setError(error.response?.data?.message || 'An unexpected error occurred');
     },
   });
 
-  return mutation;
+  return { ...mutation, error };
 };
